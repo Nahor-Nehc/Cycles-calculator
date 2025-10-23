@@ -55,6 +55,9 @@ convenience constructors. Refer to method docstrings for more granular details.
 
 from typing import Optional
 
+
+
+
 class Cycle:
     def __init__(self, mapping:Optional[dict[int,int]]=None, dimension:int=0):
         if mapping is None:
@@ -97,9 +100,7 @@ class Cycle:
             cycles.append(second * last)
         
         return cycles[0]
-    
-    
-    
+
     @staticmethod
     def generate_single_cycle(cycle:list[int]):
         seq = list(cycle)
@@ -111,15 +112,17 @@ class Cycle:
             mapping[current] = seq[0]
         return Cycle(mapping=mapping, dimension=dim)
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
     
-    def __call__(self, value):
+    def __call__(self, value:int):
+        if not isinstance(value, int):
+            raise ValueError(f"Can only send integer value, not {value}")
         if value not in self._map.keys():
             return value
         return self._map[value]
         
-    def __mul__(self, cycle):
+    def __mul__(self, cycle: "Cycle")-> "Cycle":
         """product of cycles are associative"""
         dim = max(self.get_dimension(), cycle.get_dimension())
         
@@ -133,7 +136,7 @@ class Cycle:
 
         return Cycle(mapping=new_cycle, dimension=dim)
     
-    def _create_representation(self):
+    def _create_representation(self)->list[list[int]]:
         to_check = list(range(1, self.get_dimension()+1))
         
         cycles = []
@@ -155,27 +158,38 @@ class Cycle:
                     
         return cycles
     
+    def _prettify(self, representation:list[list[int]])->str:
+        stringified = [[str(x) for x in cycle] for cycle in representation]
+        inner_join = [", ".join(cycle) for cycle in stringified]
+        result = "(" + (")(".join(inner_join)) + ")"
+        if result == "()":
+            result = "(1)"
+        return result
+    
     def __repr__(self):
         cycles = self._create_representation()
-        
-        stringified = [[str(x) for x in cycle] for cycle in cycles]
-        inner_join = [", ".join(cycle) for cycle in stringified]
-        representation = "(" + (")(".join(inner_join)) + ")"
-        if representation == "()":
-            representation = "(1)"
-        return representation
+        return self._prettify(cycles)
             
     def get_dimension(self):
         return self._dim
     
-    def decompose(self):
-        pass
+    def decompose(self) -> str:
+        """returns the decomposed form of the cycle as a string"""
+        cycles = self._create_representation()
+        
+        representation = []
+        for cycle in cycles:
+            representation += [[cycle[0], cycle[i]] for i in range(len(cycle)-1, 0, -1)]
+        
+        return self._prettify(representation)
     
     def inverse(self):
         new_mapping = {value:key for key, value in self._map.items()}
         return Cycle(mapping=new_mapping, dimension=self.get_dimension())
     
     
+a = Cycle.Cycle("(1, 2, 3, 4)")
+print(a)
+print(a.decompose())
 
-print(Cycle.Cycle("(1, 9)(1, 5)")._create_representation())
-print(Cycle.Cycle("(1, 5)(1, 9)"))
+print(a(4))
