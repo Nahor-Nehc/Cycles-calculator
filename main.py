@@ -68,9 +68,7 @@ class Cycle:
         self._dim = dimension
         
     @staticmethod
-    def Cycle(string):
-        if string == "()":
-            return Cycle()
+    def Cycle(string:str):
         # string is in the form (6, 4)(2, 3, 1)(5) for example
         bracketed = string[1:-1].split(")(")
         # print("bracketed")
@@ -80,11 +78,14 @@ class Cycle:
         for cycle in bracketed:
             tokens = [x.strip() for x in cycle.split(",") if x.strip() != ""]
             if tokens:
-                cycles.append(tokens)
+                cycles.append([int(x) for x in tokens])
                 # if no tokens found, then its an empty cycle so is the identity
         
         # print("cycles")
         # print(cycles)
+        if not cycles:
+            return Cycle()
+
         cycles[-1] = Cycle.generate_single_cycle(cycles[-1])
         while len(cycles) > 1:
             # print("cycle")
@@ -99,12 +100,12 @@ class Cycle:
     
     def inverse(self):
         new_mapping = {value:key for key, value in self._map.items()}
-        return Cycle(mapping=new_mapping, dimension=self.get_dim())
+        return Cycle(mapping=new_mapping, dimension=self.get_dimension())
     
     @staticmethod
     def generate_single_cycle(cycle:list[int]):
         seq = list(cycle)
-        dim = int(max(seq))
+        dim = max(seq)
         mapping = {}
         seq.append(seq[0])
         while len(seq) >= 2:
@@ -114,7 +115,7 @@ class Cycle:
         
     
     def __repr__(self):
-        to_check = list(range(1, self.get_dim()+1))
+        to_check = list(range(1, self.get_dimension()+1))
         
         cycles = []
         
@@ -140,7 +141,7 @@ class Cycle:
             representation = "(1)"
         return representation
             
-    def get_dim(self):
+    def get_dimension(self):
         return self._dim
     
     def __str__(self):
@@ -153,8 +154,7 @@ class Cycle:
         
     def __mul__(self, cycle):
         """product of cycles are associative"""
-        print(cycle, cycle.get_dim())
-        dim = max(self.get_dim(), cycle.get_dim())
+        dim = max(self.get_dimension(), cycle.get_dimension())
         
         to_check = [x for x in range(1, dim+1)]
         
@@ -183,6 +183,7 @@ d = c.inverse()
 
 e = Cycle.Cycle("()")
 print(e)
+print(c.get_dimension())
 # print()
 # print(c)
 # print(d)
