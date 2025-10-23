@@ -104,7 +104,7 @@ class Cycle:
     @staticmethod
     def generate_single_cycle(cycle:list[int]):
         seq = list(cycle)
-        dim = max(seq)
+        dim = int(max(seq))
         mapping = {}
         seq.append(seq[0])
         while len(seq) >= 2:
@@ -153,6 +153,7 @@ class Cycle:
         
     def __mul__(self, cycle):
         """product of cycles are associative"""
+        print(cycle, cycle.get_dim())
         dim = max(self.get_dim(), cycle.get_dim())
         
         to_check = [x for x in range(1, dim+1)]
