@@ -98,9 +98,7 @@ class Cycle:
         
         return cycles[0]
     
-    def inverse(self):
-        new_mapping = {value:key for key, value in self._map.items()}
-        return Cycle(mapping=new_mapping, dimension=self.get_dimension())
+    
     
     @staticmethod
     def generate_single_cycle(cycle:list[int]):
@@ -112,37 +110,6 @@ class Cycle:
             current = seq.pop(0)
             mapping[current] = seq[0]
         return Cycle(mapping=mapping, dimension=dim)
-        
-    
-    def __repr__(self):
-        to_check = list(range(1, self.get_dimension()+1))
-        
-        cycles = []
-        
-        while to_check:
-            looping = True
-            cycle = []
-            current = to_check[0]
-            while looping:
-                to_check.remove(current)
-                cycle.append(current)
-                nxt = self(current)
-                if nxt in cycle:
-                    looping = False
-                    if len(cycle) > 1:
-                        cycles.append(cycle)
-                else:
-                    current = nxt
-                    
-        stringified = [[str(x) for x in cycle] for cycle in cycles]
-        inner_join = [", ".join(cycle) for cycle in stringified]
-        representation = "(" + (")(".join(inner_join)) + ")"
-        if representation == "()":
-            representation = "(1)"
-        return representation
-            
-    def get_dimension(self):
-        return self._dim
     
     def __str__(self):
         return self.__repr__()
@@ -165,27 +132,50 @@ class Cycle:
             new_cycle[current] = self(cycle(current))
 
         return Cycle(mapping=new_cycle, dimension=dim)
+    
+    def _create_representation(self):
+        to_check = list(range(1, self.get_dimension()+1))
+        
+        cycles = []
+        
+        while to_check:
+            looping = True
+            cycle = []
+            current = to_check[0]
+            while looping:
+                to_check.remove(current)
+                cycle.append(current)
+                nxt = self(current)
+                if nxt in cycle:
+                    looping = False
+                    if len(cycle) > 1:
+                        cycles.append(cycle)
+                else:
+                    current = nxt
+                    
+        return cycles
+    
+    def __repr__(self):
+        cycles = self._create_representation()
+        
+        stringified = [[str(x) for x in cycle] for cycle in cycles]
+        inner_join = [", ".join(cycle) for cycle in stringified]
+        representation = "(" + (")(".join(inner_join)) + ")"
+        if representation == "()":
+            representation = "(1)"
+        return representation
+            
+    def get_dimension(self):
+        return self._dim
+    
+    def decompose(self):
+        pass
+    
+    def inverse(self):
+        new_mapping = {value:key for key, value in self._map.items()}
+        return Cycle(mapping=new_mapping, dimension=self.get_dimension())
+    
+    
 
-# print(Cycle.generate_single_cycle([6, 4]))
-# print(Cycle.generate_single_cycle([2, 3, 1]))
-# print(Cycle.generate_single_cycle([5]))
-
-
-a = Cycle.Cycle("(1, 4, 3, 2)")
-b = Cycle.Cycle("(1, 4, 3, 2)")
-# print(Cycle.Cycle("(1, 4, 5)(2, 4, 3)"))
-# print(a)
-# print(b)
-# print(a*b)
-
-c = Cycle.Cycle("(1, 3, 10, 9)(2, 5, 6)")
-d = c.inverse()
-
-e = Cycle.Cycle("()")
-print(e)
-print(c.get_dimension())
-# print()
-# print(c)
-# print(d)
-# print(c*d)
-# print(d*c)
+print(Cycle.Cycle("(1, 9)(1, 5)")._create_representation())
+print(Cycle.Cycle("(1, 5)(1, 9)"))
