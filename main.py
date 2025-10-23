@@ -55,7 +55,16 @@ convenience constructors. Refer to method docstrings for more granular details.
 
 from typing import Optional
 
-
+class Image:
+    def __init__(self, element, image):
+        self._element = element
+        self._image = image
+    
+    def __str__(self):
+        return f"{self._element} -> {self._image}"
+    
+    def __repr__(self):
+        return f"Image(element={self._element}, image={self._image})"
 
 
 class Cycle:
@@ -112,15 +121,25 @@ class Cycle:
             mapping[current] = seq[0]
         return Cycle(mapping=mapping, dimension=dim)
     
-    def __str__(self) -> str:
-        return self.__repr__()
+    def __str__(self):
+        cycles = self._create_representation()
+        return self._prettify(cycles)
     
-    def __call__(self, value:int):
+    def __repr__(self) -> str:
+        return f"<Cycle: mapping = {self._map}, dimension = {self._dim}>"
+    
+    def __call__(self, value:int, return_image = False):
         if not isinstance(value, int):
             raise ValueError(f"Can only send integer value, not {value}")
+        
         if value not in self._map.keys():
-            return value
-        return self._map[value]
+            to_return = value
+        else:
+            to_return = self._map[value]
+        
+        if return_image:
+            return Image(value, to_return)
+        return to_return
         
     def __mul__(self, cycle: "Cycle")-> "Cycle":
         """product of cycles are associative"""
@@ -165,10 +184,6 @@ class Cycle:
         if result == "()":
             result = "(1)"
         return result
-    
-    def __repr__(self):
-        cycles = self._create_representation()
-        return self._prettify(cycles)
             
     def get_dimension(self):
         return self._dim
@@ -187,9 +202,21 @@ class Cycle:
         new_mapping = {value:key for key, value in self._map.items()}
         return Cycle(mapping=new_mapping, dimension=self.get_dimension())
     
-    
-a = Cycle.Cycle("(1, 2, 3, 4)")
-print(a)
-print(a.decompose())
 
-print(a(4))
+tests = ["(1, 2, 3, 4)", "(1, 4, 6, 7, 8)(2, 5, 3, 9)",
+         "(1, 8)(1, 7)(1, 6)(1, 4)(2, 9)(2, 3)(2, 5)", "(1, 2, 4, 3)(6, 7)", "(1, 2)(1,3)"]
+
+for test in tests:
+    print("\n\n=====================")
+    a = Cycle.Cycle(test)
+    print("\ncycle")
+    print(a)
+    print("\ndecomposed")
+    print(a.decompose())
+    print("\ninverse")
+    print(a.inverse())
+    print("\na * inverse")
+    print(a * a.inverse())
+    print("\ntests")
+    print(a(1))
+    print(a(1, True))
