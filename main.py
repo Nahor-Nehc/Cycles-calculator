@@ -188,14 +188,21 @@ class Cycle:
     def get_dimension(self):
         return self._dim
     
-    def decompose(self) -> str:
+    def decompose(self, return_cycles=False) -> str:
         """returns the decomposed form of the cycle as a string"""
         cycles = self._create_representation()
         
         representation = []
+        new_cycles = []
         for cycle in cycles:
             representation += [[cycle[0], cycle[i]] for i in range(len(cycle)-1, 0, -1)]
+            
         
+        for item in representation:
+            new_cycles.append(Cycle.Cycle(f"({",".join([str(x) for x in item])})"))
+        
+        if return_cycles:
+            return new_cycles
         return self._prettify(representation)
     
     def inverse(self):
@@ -212,7 +219,8 @@ for test in tests:
     print("\ncycle")
     print(a)
     print("\ndecomposed")
-    print(a.decompose())
+    print(a.decompose(return_cycles=True))
+    print(a.decompose(return_cycles=False))
     print("\ninverse")
     print(a.inverse())
     print("\na * inverse")
